@@ -17,7 +17,7 @@
  6. 若鼠标只有两位侧位键，尽量开启的功能为两个
 ]]
 
-Version = "v1.1" --- 脚本版本
+Version = "v1.2" --- 脚本版本
 
 
 --[[
@@ -77,49 +77,6 @@ function RandomSleep(min,max)
     num = math.random(min, max)
     OutputLogMessage("timeout = %d\n",num)
     Sleep(num)
-end
-function RAGEvent(event,arg)
-    local rag_event  = false
-    if (event == "MOUSE_BUTTON_PRESSED" and arg == RAG_ARG ) then
-        rag_event  = true
-    end
-    return rag_event
-end
-function UspEvent(event ,arg)
-    local USP_EVENT = false
-    if (event == "MOUSE_BUTTON_PRESSED" and arg == USP_ARG) then
-        USP_EVENT = true
-    end
-    return USP_EVENT
-end
-function CtrlEvent(event,arg)
-    local ctrl_event = false
-    if (event == "MOUSE_BUTTON_PRESSED" and arg == CTRL_ARG ) then
-        ctrl_event = true
-    end
-    return ctrl_event
-end
-function LianYuEvent(event,arg)
-    local lian_yu_event = false
-    if (event == "MOUSE_BUTTON_PRESSED" and arg == LIAN_YU_ARG ) then
-        lian_yu_event = true
-    end
-    return lian_yu_event
-end
-function InstantSniperEvent(event,arg)
-    local instant_sniper_event = false
-    if (event == "MOUSE_BUTTON_PRESSED" and arg == INSTANT_SNIPER_ARG ) then
-        instant_sniper_event = true
-    end
-    return instant_sniper_event
-end
-function GhostJumpEvent(event,arg)
-    local ghost_jump = false
-    if (event == "MOUSE_BUTTON_PRESSED" and arg == GHOST_JUMP_ARG ) then
-        ghost_jump = true
-    end
-    return ghost_jump
-
 end
 
 --- Usp(),随机速点 -
@@ -186,8 +143,8 @@ function Instant_Sniper(event,arg)
     RandomSleep(45,55)
 end
 
---- RAG() 碎步
-function RAG(event,arg)
+--- Rag() 碎步
+function Rag(event, arg)
     while (1) do
         -- OutputLogMessage("event = %s\narg = %d\n",event,arg)
         PressKey("w")
@@ -222,32 +179,46 @@ function GhostJump(event,arg)
     ReleaseKey("lctrl")
 end
 
+function Event(event,arg,action)
+    if (event ~= "MOUSE_BUTTON_PRESSED") then
+        return false
+    end
+    return arg == action
+end
+
 --- OnEvent(),事件触发函数 -
 function OnEvent(event, arg )
-
-    local USP_EVENT = UspEvent(event,arg)
-    local CTRL_EVENT = CtrlEvent(event,arg)
-    local INSTANT_SNIPER_EVENT = InstantSniperEvent(event,arg)
-    local LIAN_YU_EVENT = LianYuEvent(event,arg)
-    local RAG_EVENT = RAGEvent(event,arg)
-    local GHOST_JUMP_EVENT = GhostJumpEvent(event,arg)
+    
+    local USP_EVENT = Event(event,arg,USP_ARG)
+    local CTRL_EVENT = Event(event,arg,CTRL_ARG)
+    local INSTANT_SNIPER_EVENT = Event(event,arg,INSTANT_SNIPER_ARG)
+    local LIAN_YU_EVENT = Event(event,arg,LIAN_YU_ARG)
+    local RAG_EVENT = Event(event,arg,RAG_ARG)
+    local GHOST_JUMP_EVENT = Event(event,arg,GHOST_JUMP_ARG)
 
     if (USP_EVENT == true and FLAG_USP_COP == true)then
         Usp(event, arg)
+        return
+
     end
     if (LIAN_YU_EVENT == true and FLAG_LIAN_YU == true)then
         LianYu(event, arg)
+        return
     end
     if (CTRL_EVENT == true and FLAG_CTRL == true)then
         Ctrl(event, arg)
+        return
     end
     if (INSTANT_SNIPER_EVENT == true and FLAG_INSTANT_SNIPER == true) then
         Instant_Sniper(event,arg)
+        return
     end
     if (RAG_EVENT == true and FLAG_RAG == true) then
-        RAG(event,arg)
+        Rag(event,arg)
+        return
     end
     if (GHOST_JUMP_EVENT == true and FLAG_GHOST_JUMP == true) then
         GhostJump(event,arg)
+        return
     end
 end
