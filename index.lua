@@ -17,16 +17,18 @@
  6. 若鼠标只有两位侧位键，尽量开启的功能为两个
 ]]
 
+Version = "v1.1" --- 脚本版本
+
 
 --[[
   各类鼠标宏开启按钮实现的功能
 ]]
-FLAG_USP_COP = true --- 开启 USP COP 速点 鼠标宏 -
+FLAG_USP_COP = false --- 开启 USP COP 速点 鼠标宏 -
 FLAG_LIAN_YU = false  --- 开启炼狱 -
-FLAG_CTRL = true --- 开启 闪蹲 鼠标宏 -
+FLAG_CTRL = false --- 开启 闪蹲 鼠标宏 -
 FLAG_INSTANT_SNIPER = false  --- 开启 一键瞬狙 -
-FLAG_RAG = false --- 开启 一键小碎步 -
-
+FLAG_RAG = true --- 开启 一键小碎步 -
+FLAG_GHOST_JUMP = true ---开启 鬼跳 -
 --[[ 鼠标宏配置按钮
   1 --> 鼠标左键
   2 --> 鼠标中滑轮键
@@ -42,7 +44,7 @@ LIAN_YU_ARG = 5 --- 炼狱速点
 CTRL_ARG = 4 --- 闪蹲按键
 INSTANT_SNIPER_ARG = 4 --- 一键瞬狙
 RAG_ARG = 5 --- 小碎步 配合w
-
+GHOST_JUMP_ARG = 4 --- 鬼跳
 
 --[[ 延迟相关的全局变量
  延迟区间 ，快很了，区间小了 会被封
@@ -51,7 +53,8 @@ RAG_ARG = 5 --- 小碎步 配合w
  炼狱 建议 20 - 30 之间
  闪蹲 建议 35 - 50 之间
  瞬狙 建议 35 - 50 之间
- 碎布 建议 60 - 70 之间
+ 碎步 建议 60 - 70 之间
+ 鬼跳 建议 15 - 25 之间 只测试了几把 虽然稳定但是不知道封号不
 ]]
 G_TIME = {}
 G_TIME["USP_INTERVAL"] = { 29, 45 }  -- USP/COP
@@ -59,6 +62,7 @@ G_TIME["LIAN_YU_INTERVAL"] = { 20 , 30 } -- 炼狱速点
 G_TIME["CTRL_INTERVAL"] = { 35 ,50 } -- 闪蹲延迟
 G_TIME["INSTANT_SNIPER_INTERVAL"] = { 35, 50 } -- 一键瞬狙延迟
 G_TIME["RAG_INTERVAL"] = { 60, 70 } -- 小碎步延迟
+G_TIME["GHOST_JUMP_INTERVAL"] = { 15, 25 } -- 鬼跳延迟
 
 EnablePrimaryMouseButtonEvents(true)
 
@@ -75,9 +79,9 @@ function RandomSleep(min,max)
     Sleep(num)
 end
 function RAGEvent(event,arg)
-    local rag_event = false
+    local rag_event  = false
     if (event == "MOUSE_BUTTON_PRESSED" and arg == RAG_ARG ) then
-        rag_event = true
+        rag_event  = true
     end
     return rag_event
 end
@@ -109,6 +113,15 @@ function InstantSniperEvent(event,arg)
     end
     return instant_sniper_event
 end
+function GhostJumpEvent(event,arg)
+    local ghost_jump = false
+    if (event == "MOUSE_BUTTON_PRESSED" and arg == GHOST_JUMP_ARG ) then
+        ghost_jump = true
+    end
+    return ghost_jump
+
+end
+
 --- Usp(),随机速点 -
 function Usp(event, arg)
     i = 0
@@ -159,19 +172,22 @@ function Instant_Sniper(event,arg)
     PressMouseButton(1)
     RandomSleep(G_TIME["INSTANT_SNIPER_INTERVAL"][1]-10,G_TIME["INSTANT_SNIPER_INTERVAL"][2]-10)
     ReleaseMouseButton(1)
-    PressKey("q")
-    RandomSleep(70,80)
-    ReleaseKey("q")
-    RandomSleep(70,80)
-    PressKey("q")
-    RandomSleep(70,80)
-    ReleaseKey("q")
-    RandomSleep(70,80)
+    PressKey("3")
+    RandomSleep(45,55)
+    ReleaseKey("3")
+    RandomSleep(45,55)
+    PressKey("1")
+    RandomSleep(45,55)
+    ReleaseKey("1")
+    RandomSleep(45,55)
+    PressKey("1")
+    RandomSleep(45,55)
+    ReleaseKey("1")
+    RandomSleep(45,55)
 end
 
-
+--- RAG() 碎步
 function RAG(event,arg)
-    i = 0
     while (1) do
         -- OutputLogMessage("event = %s\narg = %d\n",event,arg)
         PressKey("w")
@@ -185,15 +201,36 @@ function RAG(event,arg)
 end
 
 
+--- GhostJump() 鬼跳 -
+function GhostJump(event,arg)
+    PressKey("spacebar")
+    RandomSleep(G_TIME["GHOST_JUMP_INTERVAL"][1],G_TIME["GHOST_JUMP_INTERVAL"][2])
+    ReleaseKey("spacebar")
+    RandomSleep(G_TIME["GHOST_JUMP_INTERVAL"][1],G_TIME["GHOST_JUMP_INTERVAL"][2])
+    PressKey("lctrl")
+    RandomSleep(G_TIME["GHOST_JUMP_INTERVAL"][1],G_TIME["GHOST_JUMP_INTERVAL"][2])
+    while (1) do
+        -- OutputLogMessage("event = %s\narg = %d\n",event,arg)
+        PressKey("spacebar")
+        RandomSleep(G_TIME["GHOST_JUMP_INTERVAL"][1],G_TIME["GHOST_JUMP_INTERVAL"][2])
+        ReleaseKey("spacebar")
+        RandomSleep(G_TIME["GHOST_JUMP_INTERVAL"][1],G_TIME["GHOST_JUMP_INTERVAL"][2])
+        if not IsMouseButtonPressed(arg) then
+            break
+        end
+    end
+    ReleaseKey("lctrl")
+end
 
 --- OnEvent(),事件触发函数 -
 function OnEvent(event, arg )
+
     local USP_EVENT = UspEvent(event,arg)
     local CTRL_EVENT = CtrlEvent(event,arg)
     local INSTANT_SNIPER_EVENT = InstantSniperEvent(event,arg)
     local LIAN_YU_EVENT = LianYuEvent(event,arg)
     local RAG_EVENT = RAGEvent(event,arg)
-
+    local GHOST_JUMP_EVENT = GhostJumpEvent(event,arg)
 
     if (USP_EVENT == true and FLAG_USP_COP == true)then
         Usp(event, arg)
@@ -210,5 +247,7 @@ function OnEvent(event, arg )
     if (RAG_EVENT == true and FLAG_RAG == true) then
         RAG(event,arg)
     end
-
+    if (GHOST_JUMP_EVENT == true and FLAG_GHOST_JUMP == true) then
+        GhostJump(event,arg)
+    end
 end
