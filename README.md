@@ -24,7 +24,7 @@
 
 ![img.png](images/img3.png)
 
-- 复制 index.lua 中的内容
+- 复制 index.lua(或者打开[在线地址](https://gitlab.wjlin0.com/wjlin0/cf-lua/-/raw/main/index.lua)) 中的内容
 
 ![img.png](images/img4.png)
 

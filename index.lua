@@ -17,18 +17,21 @@
  6. 若鼠标只有两位侧位键，尽量开启的功能为两个
 ]]
 
-Version = "v1.2" --- 脚本版本
+Version = "v1.3" --- 脚本版本
 
 
 --[[
+  目前实现的功能如下所示
   各类鼠标宏开启按钮实现的功能
 ]]
 FLAG_USP_COP = false --- 开启 USP COP 速点 鼠标宏 -
 FLAG_LIAN_YU = false  --- 开启炼狱 -
 FLAG_CTRL = false --- 开启 闪蹲 鼠标宏 -
 FLAG_INSTANT_SNIPER = false  --- 开启 一键瞬狙 -
-FLAG_RAG = true --- 开启 一键小碎步 -
-FLAG_GHOST_JUMP = true ---开启 鬼跳 -
+FLAG_RAG = false --- 开启 一键小碎步 -
+FLAG_GHOST_JUMP = false ---开启 鬼跳 -
+FLAG_M4A1_THOR_SPEED_POINT = false --- 开启 M4雷神速点 -
+
 --[[ 鼠标宏配置按钮
   1 --> 鼠标左键
   2 --> 鼠标中滑轮键
@@ -45,6 +48,7 @@ CTRL_ARG = 4 --- 闪蹲按键
 INSTANT_SNIPER_ARG = 4 --- 一键瞬狙
 RAG_ARG = 5 --- 小碎步 配合w
 GHOST_JUMP_ARG = 4 --- 鬼跳
+M4A1_THOR_SPEED_POINT_ARG = 4 --- M4雷神速点
 
 --[[ 延迟相关的全局变量
  延迟区间 ，快很了，区间小了 会被封
@@ -55,6 +59,7 @@ GHOST_JUMP_ARG = 4 --- 鬼跳
  瞬狙 建议 35 - 50 之间
  碎步 建议 60 - 70 之间
  鬼跳 建议 15 - 25 之间 只测试了几把 虽然稳定但是不知道封号不
+ 雷神 建议 25 - 50 之间
 ]]
 G_TIME = {}
 G_TIME["USP_INTERVAL"] = { 29, 45 }  -- USP/COP
@@ -63,6 +68,7 @@ G_TIME["CTRL_INTERVAL"] = { 35 ,50 } -- 闪蹲延迟
 G_TIME["INSTANT_SNIPER_INTERVAL"] = { 35, 50 } -- 一键瞬狙延迟
 G_TIME["RAG_INTERVAL"] = { 60, 70 } -- 小碎步延迟
 G_TIME["GHOST_JUMP_INTERVAL"] = { 15, 25 } -- 鬼跳延迟
+G_TIME["M4A1_THOR_SPEED_POINT_INTERVAL"] = { 25, 50 } -- M4雷神速点延迟
 
 EnablePrimaryMouseButtonEvents(true)
 
@@ -78,6 +84,22 @@ function RandomSleep(min,max)
     OutputLogMessage("timeout = %d\n",num)
     Sleep(num)
 end
+
+--- M4a1_Thor_Speed_Point(),M4雷神速点 -
+function M4a1_Thor_Speed_Point(event,arg)
+    i = 0
+    while (1) do
+        PressMouseButton(1)
+        RandomSleep(G_TIME["M4A1_THOR_SPEED_POINT_INTERVAL"][1],G_TIME["M4A1_THOR_SPEED_POINT_INTERVAL"][2])
+        ReleaseMouseButton(1)
+        RandomSleep(G_TIME["M4A1_THOR_SPEED_POINT_INTERVAL"][1]+80,G_TIME["M4A1_THOR_SPEED_POINT_INTERVAL"][2]+80)
+        if not IsMouseButtonPressed(arg) then
+            break
+        end
+    end
+end
+
+
 
 --- Usp(),随机速点 -
 function Usp(event, arg)
@@ -120,7 +142,7 @@ function Ctrl(event,arg)
     end
 end
 
-
+--- Instant_Sniper() 一键瞬狙
 function Instant_Sniper(event,arg)
     PressMouseButton(3)
     RandomSleep(G_TIME["INSTANT_SNIPER_INTERVAL"][1],G_TIME["INSTANT_SNIPER_INTERVAL"][2])
@@ -195,6 +217,7 @@ function OnEvent(event, arg )
     local LIAN_YU_EVENT = Event(event,arg,LIAN_YU_ARG)
     local RAG_EVENT = Event(event,arg,RAG_ARG)
     local GHOST_JUMP_EVENT = Event(event,arg,GHOST_JUMP_ARG)
+    local M4A1_THOR_SPEED_POINT_EVENT = Event(event,arg,M4A1_THOR_SPEED_POINT_ARG)
 
     if (USP_EVENT == true and FLAG_USP_COP == true)then
         Usp(event, arg)
@@ -219,6 +242,10 @@ function OnEvent(event, arg )
     end
     if (GHOST_JUMP_EVENT == true and FLAG_GHOST_JUMP == true) then
         GhostJump(event,arg)
+        return
+    end
+    if (M4A1_THOR_SPEED_POINT_EVENT == true and FLAG_M4A1_THOR_SPEED_POINT == true) then
+        M4a1_Thor_Speed_Point(event,arg)
         return
     end
 end
