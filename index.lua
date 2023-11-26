@@ -17,7 +17,7 @@
  6. 若鼠标只有两位侧位键，尽量开启的功能为两个
 ]]
 
-Version = "v1.3" --- 脚本版本
+Version = "v1.4" --- 脚本版本
 
 
 --[[
@@ -31,6 +31,7 @@ FLAG_INSTANT_SNIPER = false  --- 开启 一键瞬狙 -
 FLAG_RAG = false --- 开启 一键小碎步 -
 FLAG_GHOST_JUMP = false ---开启 鬼跳 -
 FLAG_M4A1_THOR_SPEED_POINT = false --- 开启 M4雷神速点 -
+FLAG_AK47_SPEED_POINT = false --- 开启 AK47速点 -
 
 --[[ 鼠标宏配置按钮
   1 --> 鼠标左键
@@ -42,13 +43,14 @@ FLAG_M4A1_THOR_SPEED_POINT = false --- 开启 M4雷神速点 -
   7 --> 鼠标右上键
   0 --> 表示不生效
 ]]
-USP_ARG = 5 --- USP速点按键
-LIAN_YU_ARG = 5 --- 炼狱速点
-CTRL_ARG = 4 --- 闪蹲按键
-INSTANT_SNIPER_ARG = 4 --- 一键瞬狙
-RAG_ARG = 5 --- 小碎步 配合w
-GHOST_JUMP_ARG = 4 --- 鬼跳
-M4A1_THOR_SPEED_POINT_ARG = 4 --- M4雷神速点
+USP_ARG = 0 --- USP速点按键
+LIAN_YU_ARG = 0 --- 炼狱速点
+CTRL_ARG = 0 --- 闪蹲按键
+INSTANT_SNIPER_ARG = 0 --- 一键瞬狙
+RAG_ARG = 0 --- 小碎步 配合w
+GHOST_JUMP_ARG = 0 --- 鬼跳
+M4A1_THOR_SPEED_POINT_ARG = 0 --- M4雷神速点
+AK47_SPEED_POINT_ARG = 0 --- AK47速点
 
 --[[ 延迟相关的全局变量
  延迟区间 ，快很了，区间小了 会被封
@@ -60,6 +62,7 @@ M4A1_THOR_SPEED_POINT_ARG = 4 --- M4雷神速点
  碎步 建议 60 - 70 之间
  鬼跳 建议 15 - 25 之间 只测试了几把 虽然稳定但是不知道封号不
  雷神 建议 25 - 50 之间
+ AK  建议 25 - 50 之间
 ]]
 G_TIME = {}
 G_TIME["USP_INTERVAL"] = { 29, 45 }  -- USP/COP
@@ -69,6 +72,7 @@ G_TIME["INSTANT_SNIPER_INTERVAL"] = { 35, 50 } -- 一键瞬狙延迟
 G_TIME["RAG_INTERVAL"] = { 60, 70 } -- 小碎步延迟
 G_TIME["GHOST_JUMP_INTERVAL"] = { 15, 25 } -- 鬼跳延迟
 G_TIME["M4A1_THOR_SPEED_POINT_INTERVAL"] = { 25, 50 } -- M4雷神速点延迟
+G_TIME["AK47_SPEED_POINT_INTERVAL"] = { 25, 50 } -- AK47速点延迟
 
 EnablePrimaryMouseButtonEvents(true)
 
@@ -99,6 +103,17 @@ function M4a1_Thor_Speed_Point(event,arg)
     end
 end
 
+function Ak47_Speed_Point(event,arg)
+    while (1) do
+        PressMouseButton(1)
+        RandomSleep(G_TIME["AK47_SPEED_POINT_INTERVAL"][1],G_TIME["AK47_SPEED_POINT_INTERVAL"][2])
+        ReleaseMouseButton(1)
+        RandomSleep(G_TIME["AK47_SPEED_POINT_INTERVAL"][1]+85,G_TIME["AK47_SPEED_POINT_INTERVAL"][2]+90)
+        if not IsMouseButtonPressed(arg) then
+            break
+        end
+    end
+end
 
 
 --- Usp(),随机速点 -
@@ -218,7 +233,7 @@ function OnEvent(event, arg )
     local RAG_EVENT = Event(event,arg,RAG_ARG)
     local GHOST_JUMP_EVENT = Event(event,arg,GHOST_JUMP_ARG)
     local M4A1_THOR_SPEED_POINT_EVENT = Event(event,arg,M4A1_THOR_SPEED_POINT_ARG)
-
+    local AK47_SPEED_POINT_EVENT = Event(event,arg,AK47_SPEED_POINT_ARG)
     if (USP_EVENT == true and FLAG_USP_COP == true)then
         Usp(event, arg)
         return
@@ -246,6 +261,10 @@ function OnEvent(event, arg )
     end
     if (M4A1_THOR_SPEED_POINT_EVENT == true and FLAG_M4A1_THOR_SPEED_POINT == true) then
         M4a1_Thor_Speed_Point(event,arg)
+        return
+    end
+    if (AK47_SPEED_POINT_EVENT == true and FLAG_AK47_SPEED_POINT == true) then
+        Ak47_Speed_Point(event,arg)
         return
     end
 end
